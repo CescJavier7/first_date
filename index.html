@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nucita Digital</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ESTILOS GENERALES Y FUENTE */
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            text-align: center;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-background-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .particle:nth-child(even) { background: rgba(255, 255, 255, 0.4); }
+        .particle:nth-child(odd) { animation-duration: 12s; }
+        .particle:nth-child(3n) { animation-duration: 8s; }
+        .particle:nth-child(5n) { animation-duration: 15s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-20vh) scale(1); }
+            80% { opacity: 1; transform: translateY(120vh) scale(1); }
+            100% { opacity: 0; transform: translateY(150vh) scale(0); }
+        }
+
+        /* PANTALLA DE CARGANDO - MODIFICACIONES AQUÍ */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column; /* Columna para el spinner y el texto */
+            justify-content: center; /* Centrado vertical */
+            align-items: center; /* Centrado horizontal */
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #e74c3c;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1.5s linear infinite;
+        }
+
+        #loader-text {
+            margin-top: 20px;
+            font-size: 2.5em; /* Aumentamos el tamaño */
+            color: #555;
+            font-weight: 600; /* Hacemos el texto más grueso */
+        }
+        /* FIN MODIFICACIONES LOADER */
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ESTILOS DEL CONTENIDO PRINCIPAL */
+        #content {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .hidden { display: none; }
+
+        .step {
+            min-height: 80vh;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.8s;
+        }
+
+        .step.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 2em;
+            color: #333;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .avatars .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: 0 10px;
+        }
+
+        button {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .story-img {
+            max-width: 80%;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .story-img.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #heart-container {
+            position: relative;
+            height: 200px;
+            width: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #heart {
+            background-color: #e74c3c;
+            height: 120px;
+            width: 120px;
+            transform: rotate(-45deg) scale(0);
+            position: relative;
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        #heart.formed { transform: rotate(-45deg) scale(1); }
+
+        #heart::before, #heart::after {
+            content: '';
+            background-color: #e74c3c;
+            border-radius: 50%;
+            height: 120px;
+            width: 120px;
+            position: absolute;
+        }
+
+        #heart::before { top: -60px; left: 0; }
+        #heart::after { top: 0; left: 60px; }
+
+        @keyframes pulse {
+            0%, 100% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.05); }
+        }
+
+        #heart-message { margin-top: 20px; font-size: 1.2em; }
+        
+        #caligrama-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.5s;
+        }
+        #caligrama-container.visible { opacity: 1; }
+
+        #caligrama-container div {
+            position: absolute;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+            white-space: nowrap;
+            opacity: 0;
+            transform: scale(0);
+            animation: popIn 0.5s forwards;
+        }
+        
+        #line1 { top: 18%; animation-delay: 0.6s; }
+        #line2 { top: 32%; animation-delay: 0.8s; }
+        #line3 { top: 46%; animation-delay: 1.0s; }
+        #line4 { top: 60%; animation-delay: 1.2s; }
+        #line5 { top: 74%; animation-delay: 1.4s; }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .rating { font-size: 3em; cursor: pointer; margin: 20px 0; }
+        .rating span {
+            display: inline-block;
+            margin: 0 5px;
+            opacity: 0.5;
+            transform: scale(0.8);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .rating span:hover { opacity: 1; transform: scale(1.2); }
+        .rating span.selected { opacity: 1; transform: scale(1.1); }
+        #rating-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #e74c3c;
+            min-height: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button.secondary-btn {
+            background: #bdc3c7;
+            font-size: 1em;
+            padding: 12px 25px;
+        }
+
+        button.secondary-btn:hover {
+            background: #95a5a6;
+            box-shadow: none;
+            transform: translateY(-1px);
+        }
+
+        #demon-slayer-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #demon-slayer-popup.visible {
+            display: flex;
+            opacity: 1;
+        }
+
+        .popup-content {
+            background-color: #f7e6e6;
+            border: 5px solid #a33b3b;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.8);
+            opacity: 0;
+            animation: popupScaleIn 0.5s forwards cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes popupScaleIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .popup-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, rgba(163,59,59,0.1) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(163,59,59,0.1) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(163,59,59,0.1) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(163,59,59,0.1) 75%);
+            background-size: 30px 30px;
+            background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .popup-content h3 {
+            color: #a33b3b;
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .popup-content p {
+            color: #5a1e1e;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+
+        #popup-close-btn {
+            background-color: #a33b3b;
+            margin-top: 0;
+        }
+        #popup-close-btn:hover {
+            background-color: #7b2a2a;
+            box-shadow: 0 4px 10px rgba(163,59,59,0.4);
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2em; }
+            .subtitle, #rating-text, #heart-message, button { font-size: 1em; }
+            .avatars .avatar { width: 80px; height: 80px; }
+            #caligrama-container div { font-size: 1em; }
+            .popup-content { max-width: 90%; padding: 20px; }
+            .popup-content h3 { font-size: 1.5em; }
+            .popup-content p { font-size: 1em; }
+            #loader-text { font-size: 1.8em; } /* Ajuste para móviles */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="animated-background-particles"></div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p id="loader-text">Cargando mariposas en el estómago...</p>
+    </div>
+
+    <div id="content" class="hidden">
+
+        <section id="intro" class="step active">
+            <h1>Ok, Admítelo...</h1>
+            <p class="subtitle">Nunca te habían hecho una página web para una cita. <br> (Sí, soy así de nerd 😉)</p>
+            <div class="avatars">
+                <img src="img/629ea9ad6766c80ee9442b8ae9bb9c03.jpg" alt="Mi Avatar" class="avatar">
+                <img src="img/st,medium,507x507-pad,600x600,f8f8f8.webp" alt="Tu Avatar" class="avatar">
+            </div>
+            <button id="start-btn">Comprobar Compatibilidad...</button>
+        </section>
+
+        <section id="story" class="step">
+            <div id="heart-container"> 
+                <div id="heart"></div>
+                <div id="caligrama-container">
+                    <div id="line1">Little Karen</div>
+                    <div id="line2">Guaga de Leche</div>
+                    <div id="line3">Negra</div>
+                </div>
+            </div>
+            <p id="heart-message" class="hidden">Una breve dramatización de los hechos. <br> Ahora, al momento de la verdad...</p>
+        </section>
+
+        <section id="rating-section" class="step">
+            <h2>Califique la experiencia</h2>
+            <div class="rating">
+                <span data-value="1">😒</span> <span data-value="2">🤨</span> <span data-value="3">🙂</span> <span data-value="4">😊</span> <span data-value="5">😍</span>
+            </div>
+            <p id="rating-text">¿Mi veredicto es...?</p>
+            <div class="button-group">
+                <button id="back-to-intro-btn" class="secondary-btn">Regresar al inicio</button>
+                <button id="send-rating-btn" class="hidden">¡Hacerlo Oficial!</button>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="demon-slayer-popup">
+        <div class="popup-content">
+            <h3>¡Atención, Cazadora de Corazones, XD!</h3>
+            <p>Has activado una "Promoción de Suscripción Total". ¡Tu destino está escrito. No te pierdas esta oportunidad única adoptar a un insano. :v 
+                Recuerda, 9 de cada 10 insanos recomiendan esta experiencia.
+            </p>
+            <button id="popup-close-btn">¡Aceptar mi destino!</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loader-text');
+            const content = document.getElementById('content');
+            const startBtn = document.getElementById('start-btn');
+            const steps = document.querySelectorAll('.step');
+            const storyIllustrations = document.querySelectorAll('.story-img');
+            const heart = document.getElementById('heart');
+            const heartMessage = document.getElementById('heart-message');
+            const ratingEmojis = document.querySelectorAll('.rating span');
+            const ratingText = document.getElementById('rating-text');
+            const sendRatingBtn = document.getElementById('send-rating-btn');
+            const backToIntroBtn = document.getElementById('back-to-intro-btn');
+            const caligramaContainer = document.getElementById('caligrama-container');
+            const demonSlayerPopup = document.getElementById('demon-slayer-popup');
+            const popupCloseBtn = document.getElementById('popup-close-btn');
+            const animatedBackgroundParticles = document.querySelector('.animated-background-particles');
+
+            let currentStep = 0;
+            let userRating = 0;
+
+            function createParticles(num) {
+                for (let i = 0; i < num; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    particle.style.width = `${Math.random() * 10 + 5}px`;
+                    particle.style.height = particle.style.width;
+                    particle.style.left = `${Math.random() * 100}vw`;
+                    particle.style.animationDelay = `${Math.random() * -10}s`;
+                    particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+                    animatedBackgroundParticles.appendChild(particle);
+                }
+            }
+            createParticles(30);
+
+            const loadingMessages = [
+                "Asegurándome de no haber dicho nada raro...",
+                "Buscando en Google 'cómo impresionar en una cita'...",
+                "Es broma... ¿O no?... 🤔",
+                "¡Compilando, ERROR! :v",
+                "Listo, ya puedes empezar. 😎"
+            ];
+            let msgIndex = 0;
+            const interval = setInterval(() => {
+                msgIndex++;
+                if (msgIndex < loadingMessages.length) {
+                    loaderText.innerText = loadingMessages[msgIndex];
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1500);
+
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        content.classList.remove('hidden');
+                        document.body.style.overflow = 'auto';
+                        setTimeout(() => {
+                            demonSlayerPopup.classList.add('visible');
+                        }, 2000);
+                    }, 500);
+                }, 7000);
+            });
+
+            function showStep(stepIndex) {
+                steps.forEach(step => step.classList.remove('active'));
+                steps[stepIndex].classList.add('active');
+                if (stepIndex === 0) {
+                    caligramaContainer.classList.remove('visible');
+                    heart.classList.remove('formed');
+                }
+            }
+
+            startBtn.addEventListener('click', () => {
+                currentStep = 1;
+                showStep(currentStep);
+                startStoryAnimation();
+            });
+            
+            backToIntroBtn.addEventListener('click', () => {
+                currentStep = 0;
+                showStep(currentStep);
+            });
+
+            function startStoryAnimation() {
+                let delay = 500;
+                storyIllustrations.forEach((img, index) => {
+                    setTimeout(() => { img.classList.add('visible'); }, delay * (index + 1));
+                });
+                
+                setTimeout(() => { 
+                    heart.classList.add('formed'); 
+                    caligramaContainer.classList.add('visible');
+                }, delay * (storyIllustrations.length + 1));
+            }
+
+            heart.addEventListener('click', () => {
+                heartMessage.classList.remove('hidden');
+                setTimeout(() => { currentStep = 2; showStep(currentStep); }, 2500);
+            });
+
+            ratingEmojis.forEach(emoji => {
+                emoji.addEventListener('click', (e) => {
+                    ratingEmojis.forEach(em => {
+                        em.classList.remove('selected');
+                    });
+                    
+                    e.target.classList.add('selected');
+
+                    userRating = e.target.dataset.value;
+                    const ratingMessages = {
+                        1: "Ok, llamaré a mi negra para que me recoja. 😥",
+                        2: "Bueno, al menos hay salud... ¿o sí? 😅",
+                        3: "¡Pasable! Material de amigos... por ahora. 😏",
+                        4: "¡Casi perfecto! Solo faltaron las clubs. 🍻",
+                        5: "Hola, Jesús todo Rojo. Acabo de tener la mejor cita. 😍"
+                    };
+                    ratingText.innerText = ratingMessages[userRating];
+                    sendRatingBtn.classList.remove('hidden');
+                });
+            });
+
+            sendRatingBtn.addEventListener('click', () => {
+                const myPhoneNumber = '593983755469'; // !! REEMPLAZA CON TU NÚMERO
+                const stars = '😍'.repeat(userRating) + '😒'.repeat(5 - userRating);
+                const subject = `Asunto: Reporte Oficial de la Cita.`;
+                const classification = `Clasificación: ${stars} (${userRating}/5)`;
+                const comments = `Comentarios Adicionales: [Escribe aquí si mi chistes fueron buenos o nel].`;
+                const proof = `**Prueba Fotográfica del Momento:** [Adjunta aquí el tiktok que no nos atrevimos a tomar 😉]`;
+                const fullMessage = encodeURIComponent(`${subject}\n\n${classification}\n\n${comments}\n\n${proof}`);
+                const whatsappUrl = `https://wa.me/${myPhoneNumber}?text=${fullMessage}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
+            popupCloseBtn.addEventListener('click', () => {
+                demonSlayerPopup.classList.remove('visible');
+            });
+        });
+    </script>
+</body>
+</html>
